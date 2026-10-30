@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "fcku",
+  "version": "${version}",
+  "name": "fckU Client",
+  "description": "ESP, stash finder, auto crystal, auto anchor.",
+  "environment": "client",
+  "entrypoints": { "client": ["dev.fcku.FckUClient"] },
+  "depends": { "fabricloader": ">=0.16.0", "minecraft": "~1.21.4", "fabric-api": "*" }
+}
