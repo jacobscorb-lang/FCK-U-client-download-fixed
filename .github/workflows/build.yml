@@ -1,0 +1,41 @@
+
+name: Build FKC-U Client
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build client
+        run: |
+          if [ -f "./gradlew" ]; then
+            chmod +x ./gradlew
+            ./gradlew build
+          else
+            gradle build
+          fi
+
+      - name: Upload client JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: FKC-U-Client
+          path: "**/build/libs/*.jar"
+          if-no-files-found: error
