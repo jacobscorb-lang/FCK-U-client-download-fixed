@@ -13,29 +13,43 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
+      - name: Set up Java 21
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
-      - name: Build client
+      - name: Find and build Gradle project
+        shell: bash
         run: |
-          if [ -f "./gradlew" ]; then
-            chmod +x ./gradlew
-            ./gradlew build
-          else
-            gradle build
+          BUILD_FILE=$(find . -type f \( -name build.gradle -o -name build.gradle.kts \) \
+            -not -path './.gradle/*' | head -n 1)
+
+          if [ -z "$BUILD_FILE" ]; then
+            echo "ERROR: No Gradle build file found."
+            exit 1
           fi
 
-      - name: Upload client JAR
+          PROJECT_DIR=$(dirname "$BUILD_FILE")
+          echo "Building project in: $PROJECT_DIR"
+
+          cd "$PROJECT_DIR"
+
+          if [ -f gradlew ]; then
+            chmod +x gradlew
+            ./gradlew build --stacktrace
+          else
+            gradle build --stacktrace
+          fi
+
+      - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
           name: FKC-U-Client
-          path: "**/build/libs/*.jar"
+          path: '**/build/libs/*.jar'
           if-no-files-found: error
